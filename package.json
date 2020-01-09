@@ -48,5 +48,5 @@
     "fs": "0.0.1-security",
     "fs-extra": "^7.0.1"
   },
-  "repository": ""
+  "repository": "https://github.com/huanglovesong/create-react-component-song.git"
 }
