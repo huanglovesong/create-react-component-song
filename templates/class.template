@@ -1,0 +1,257 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'dva';
+import { Form, message, Button, Modal, Spin, Divider } from 'antd';
+import moment from 'moment';
+import { getScrollWidth } from '../../utils/common';
+import TopNav from '../TopNav';
+import {SearchForm, Table,} from 'fl-pro';
+import './less/{cssName}.less';
+const FormItem = Form.Item;
+const confirm = Modal.confirm;
+const orderStatus = { '11': '待付款', '15': '交易关闭', '21': '付款成功', '31': '待充值', '41': '充值中', '51': '充值成功', '61': '充值失败', '71': '退款成功', };
+@Form.create()
+class {componentName} extends React.Component {
+constructor(props) {
+super(props);
+this.state = {
+searchConfig: [{
+label: '订单编号',
+type: 'Input',
+name: 'OrderId',
+placeholder: '请输入订单编号',
+},
+{
+label: '商品属性',
+type: 'Select',
+name: 'ProductAttr',
+initialValue: '',
+items: [
+{ name: '全部', value: '' },
+{ name: '话费', value: '1' },
+{ name: '流量', value: '2' },
+{ name: '卡密', value: '3' },
+{ name: '直充', value: '4' },
+]
+}, {
+label: '订单状态',
+type: 'Select',
+name: 'OrderStatus',
+initialValue: '',
+items: [
+{ name: '全部', value: '' },
+{ name: '待付款', value: '11' },
+{ name: '交易关闭', value: '15' },
+{ name: '付款成功', value: '21' },
+{ name: '待充值', value: '31' },
+{ name: '充值中', value: '41' },
+{ name: '充值成功', value: '51' },
+{ name: '充值失败', value: '61' },
+{ name: '退款成功', value: '71' },
+]
+},
+{
+label: '下单时间',
+type: 'RangePicker',
+name: 'DefaultTime',
+initialValue: [moment(moment().format('YYYY-MM-DD 00:00:00')),
+moment(moment().format('YYYY-MM-DD 23:59:59'))],
+timeFormat: 'YYYY-MM-DD HH:mm:ss',
+responseFiled: {
+beginTime: 'BeginOrderTime',
+endTime: 'EndOrderTime',
+},
+allowClear: true,
+}],
+postData: {
+MerId: localStorage.getItem('MerchantId'),
+pageIndex: 1,
+pageSize: 10,
+},
+btnArr: window.getAuthButtons(),
+selectedRowKeys: [],
+selectedRows: []
+}
+}
+componentWillMount() {
+}
+componentWillReceiveProps(nextProps) {
+const { merAliMessageTempListResult } = nextProps.$2;
+if (merAliMessageTempListResult !== this.props.$2.merAliMessageTempListResult) {
+const { code, data } = merAliMessageTempListResult;
+if (code === '0') {
+return this.setState({
+tableData: data.list,
+total: data.total
+});
+}
+message.error(merAliMessageTempListResult.message);
+}
+}
+getData = () => {
+const { postData } = this.state;
+this.props.dispatch({ type: '$2/merAliMessageTempList', payload: { ...postData } });
+}
+search = (err, value) => {
+//查询列表
+const { postData } = this.state;
+postData.pageIndex = 1;
+this.setState({
+postData: { ...postData, ...value }
+}, () => {
+this.getData();
+})
+}
+addMessageTemplate = () => {
+this.props.history.push('/$2/messageTemplateAdd');
+}
+// 启用禁用
+enableInfo = (record) => {
+this.props.dispatch({
+type: '$2/merAliMessageTempEnable', payload: { id: record.id, isEnable: !record.isEnable },
+callback: ({ code, data, message: info }) => {
+if (code === '0') {
+message.success(info);
+this.getData();
+} else if (code === '-1') {
+message.error(info);
+}
+}
+});
+}
+// 删除
+deleteInfo = (record) => {
+var that = this;
+confirm({
+title: '删除确认',
+content: '确定要删除所选数据吗？',
+okText: '确认',
+centered: true,
+cancelText: '取消',
+onOk() {
+that.props.dispatch({
+type: '$2/merAliMessageTempDelete', payload: { id: record.id },
+callback: ({ code, data, message: info }) => {
+if (code === '0') {
+message.success(info);
+that.getData();
+} else if (code === '-1') {
+message.error(info);
+}
+}
+});
+},
+onCancel() {
+},
+});
+}
+ render(){
+const { searchConfig, btnArr, total, postData, tableData, selectedRowKeys, selectedRows } = this.state;
+const tableColums = [
+{ title: '序号', width: 80, key: 'index', dataIndex: 'index', fixed: 'left', render(text, record, index) { return index + 1 } },
+{
+title: '模版标题', key: 'tempNo', dataIndex: 'tempNo',
+render(text) {
+const arr = ['', '待支付提醒', '订单取消通知', '充值成功通知', '充值失败通知', '温馨提示'];
+return arr[text];
+}
+},
+{
+title: '模版ID', key: 'tempId', dataIndex: 'tempId',
+},
+{
+title: '消息类型', width: 150, key: 'tempMessageType', dataIndex: 'tempMessageType',
+render(text) {
+const arr = ['', '支付类型', '表单类型'];
+return arr[text];
+}
+},
+{
+title: '状态', width: 150, key: 'isEnable', dataIndex: 'isEnable',
+render(text) {
+return text ? '启用' : '禁用';
+}
+},
+{
+title: '操作', width: 180, key: 'control', fixed: 'right',
+render: (text, record) => {
+return (
+<div>
+{btnArr.find(v => v.enCode === 'lr-enable') &&
+<a onClick={() => { this.enableInfo(record) }}>{record.isEnable ? '禁用' : '启用'}</a>}
+{btnArr.find(v => v.enCode === 'lr-enable') && <Divider type='vertical' />
+}
+{btnArr.find(v => v.enCode === 'lr-edit') &&
+<a onClick={() => { this.props.history.push(`/$2/messageTemplateAdd?id=${record.id
+}`)
+
+}}>编辑</a>
+}
+{btnArr.find(v => v.enCode === 'lr-edit') && <Divider type='vertical' />
+}
+{btnArr.find(v => v.enCode === 'lr-delete') && <a onClick={() => { this, this.deleteInfo(record)
+}
+}>删除</a>
+}
+</div>
+)
+}
+}
+]
+const pagination = {
+total,
+showQuickJumper: true,
+pageSize: postData.pageSize,
+current: postData.pageIndex,
+pageSizeOptions: ['30', '50', '100'],
+onShowSizeChange: (current, pageSize) => {
+this.setState({ postData: { ...postData, pageIndex: current, pageSize: pageSize } }, () => {
+this.getData();
+})
+},
+onChange: (current, pageSize) => {
+console.log(current, 'current');
+this.setState({ postData: { ...postData, pageIndex: current, pageSize: pageSize } }, () => {
+this.getData();
+})
+},
+};
+const rowSelection = {
+selectedRowKeys,
+onChange: (selectedRowKeys, selectedRows) => {
+this.setState({ selectedRows, selectedRowKeys });
+},
+};
+   return (
+<div>
+<TopNav />
+<Spin spinning={!!this.props.loading.models.$2}>
+<div className='common-page-content'>
+<SearchForm
+onRef={r => this.child = r}
+searchConfig={searchConfig}
+search={this.search}
+key={1}
+toggleSearchForm={this.showmorecallback}
+/>
+{btnArr.find(v => v.enCode === 'lr-add') && <div className='table-control-bar'>
+<Button onClick={this.addMessageTemplate} type='primary' >新增消息模板</Button>
+</div>}
+<Table className='bannertable'
+rowSelection={rowSelection}
+pagination={pagination} rowKey='id'
+columns={tableColums}
+dataSource={tableData} />
+</div>
+</Spin>
+</div>
+   )
+ }
+}
+
+const mapStateToProps = (state) => {
+return {
+...state,
+};
+}
+export default connect(mapStateToProps)({componentName});
