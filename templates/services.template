@@ -1,0 +1,26 @@
+import axios from '../utils/axios';
+import Api from '../configs/api';
+
+
+export function {componentName}List(params) {
+    return axios.get(configs.host.test + Api.{componentName}, { 'params': params });
+}
+export function {componentName}Edit(params) {
+    return axios.put(configs.host.test + Api.{componentName}, params);
+}
+
+export function {componentName}Add(params) {
+    return axios.post(configs.host.test + Api.{componentName}, params);
+}
+
+export function {componentName}Delete(params) {
+    return axios.delete(configs.host.test + Api.{componentName}, { 'params': params })
+}
+
+export function {componentName}Detail(params) {
+    return axios.get(configs.host.test + `${Api.{componentName}}/${params.id}`, {});
+}
+
+export function {componentName}Enable(params) {
+    return axios.put(configs.host.test + `${Api.{componentName}}/state`, params);
+}

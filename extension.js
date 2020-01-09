@@ -27,8 +27,9 @@ function activate(context) {
         return Promise.all([
           generators.createComponent(componentDir, componentName, type),
           generators.createTestFile(componentDir, componentName),
-          // generators.createPackageJSON(componentDir, componentName),
-          generators.createCSS(componentDir, componentName)
+          generators.createCSS(componentDir, componentName),
+          generators.createModelFile(componentDir, componentName),
+          generators.createServiceFile(componentDir, componentName)
         ]);
       })
       .then(
@@ -59,7 +60,7 @@ function activate(context) {
   });
 }
 
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
   activate,

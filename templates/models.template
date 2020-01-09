@@ -1,0 +1,77 @@
+import * as {componentName} from '../services/{componentName}';
+
+export default {
+    namespace: '{componentName}',
+    state: {},
+    effects: {
+        *merAliMessageTempList({ payload, callback }, { call, put }) {
+            const testRes = yield call({componentName}.merAliMessageTempList, payload);
+            yield put({
+                type: 'success',
+                payload: {
+                    merAliMessageTempListResult: testRes
+                }
+            });
+            callback && callback(testRes);
+            return testRes;
+        },
+        *merAliMessageTempEdit({ payload, callback }, { call, put }) {
+            const testRes = yield call({componentName}.merAliMessageTempEdit, payload);
+            yield put({
+                type: 'success',
+                payload: {
+                    merAliMessageTempEditResult: testRes
+                }
+            });
+            callback && callback(testRes);
+        },
+        *merAliMessageTempAdd({ payload, callback }, { call, put }) {
+            const testRes = yield call({componentName}.merAliMessageTempAdd, payload);
+            yield put({
+                type: 'success',
+                payload: {
+                    merAliMessageTempAddResult: testRes
+                }
+            });
+            callback && callback(testRes);
+        },
+        *merAliMessageTempDelete({ payload, callback }, { call, put }) {
+            const testRes = yield call({componentName}.merAliMessageTempDelete, payload);
+            yield put({
+                type: 'success',
+                payload: {
+                    merAliMessageTempDeleteResult: testRes
+                }
+            });
+            callback && callback(testRes);
+        },
+        *merAliMessageTempDetail({ payload, callback }, { call, put }) {
+            const testRes = yield call({componentName}.merAliMessageTempDetail, payload);
+            yield put({
+                type: 'success',
+                payload: {
+                    merAliMessageTempDetailResult: testRes
+                }
+            });
+            callback && callback(testRes);
+        },
+        *merAliMessageTempEnable({ payload, callback }, { call, put }) {
+            const testRes = yield call({componentName}.merAliMessageTempEnable, payload);
+            yield put({
+                type: 'success',
+                payload: {
+                    merAliMessageTempEnableResult: testRes
+                }
+            });
+            callback && callback(testRes);
+        }
+    },
+    reducers: {
+        success(state, { payload }) {
+            return {
+                ...state,
+                ...payload
+            }
+        }
+    }
+}

@@ -42,9 +42,7 @@ module.exports = {
         contextMenuSourcePath = vscode.workspace.rootPath;
       }
 
-      let componentDir = `${contextMenuSourcePath}/${pascalCase(
-        componentName
-      )}`;
+      let componentDir = `${contextMenuSourcePath}`;
       fse.mkdirsSync(componentDir);
 
       return componentDir;
@@ -55,12 +53,12 @@ module.exports = {
 
       const compName = pascalCase(componentName);
       const cssName = camelCase(componentName);
-
+      console.log(componentDir, 23123);
       let componentContent = fs
         .readFileSync(templateFileName)
         .toString()
         .replace(/{componentName}/g, compName).replace(/{cssName}/g, cssName);
-      let filename = `${componentDir}/${compName}.jsx`;
+      let filename = `${componentDir}/components/${compName}/${compName}.js`;
 
       return this.createFile(filename, componentContent);
     },
@@ -74,7 +72,36 @@ module.exports = {
         .toString()
         .replace(/{componentName}/g, compName);
 
-      let filename = `${componentDir}/index.jsx`;
+      let filename = `${componentDir}/components/${compName}/index.js`;
+
+      return this.createFile(filename, componentContent);
+    },
+    createModelFile: function (componentDir, componentName) {
+      let templateFileName = this.templatesDir + `/models.template`;
+
+      const compName = camelCase(componentName);
+
+      let componentContent = fs
+        .readFileSync(templateFileName)
+        .toString()
+        .replace(/{componentName}/g, compName);
+
+      let filename = `${componentDir}/models/${compName}.js`;
+
+      return this.createFile(filename, componentContent);
+    },
+
+    createServiceFile: function (componentDir, componentName) {
+      let templateFileName = this.templatesDir + `/services.template`;
+
+      const compName = camelCase(componentName);
+
+      let componentContent = fs
+        .readFileSync(templateFileName)
+        .toString()
+        .replace(/{componentName}/g, compName);
+
+      let filename = `${componentDir}/services/${compName}.js`;
 
       return this.createFile(filename, componentContent);
     },
@@ -116,7 +143,7 @@ module.exports = {
         .toString()
         .replace(/{componentName}/g, compName);
 
-      let filename = `${componentDir}/less/${compName}.less`;
+      let filename = `${componentDir}/components/${compName}/less/${compName}.less`;
 
       return this.createFile(filename, cssContent);
     }
