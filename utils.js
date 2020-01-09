@@ -52,12 +52,12 @@ module.exports = {
       let templateFileName = this.templatesDir + `/${type}.template`;
 
       const compName = pascalCase(componentName);
-      const cssName = camelCase(componentName);
+      const cName = camelCase(componentName);
       console.log(componentDir, 23123);
       let componentContent = fs
         .readFileSync(templateFileName)
         .toString()
-        .replace(/{componentName}/g, compName).replace(/{cssName}/g, cssName);
+        .replace(/{componentName}/g, compName).replace(/{cName}/g, cName);
       let filename = `${componentDir}/components/${compName}/${compName}.js`;
 
       return this.createFile(filename, componentContent);

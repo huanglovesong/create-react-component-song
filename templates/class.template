@@ -6,7 +6,7 @@ import moment from 'moment';
 import { getScrollWidth } from '../../utils/common';
 import TopNav from '../TopNav';
 import { SearchForm, Table, } from 'fl-pro';
-import './less/{cssName}.less';
+import './less/{cName}.less';
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
 const orderStatus = { '11': '待付款', '15': '交易关闭', '21': '付款成功', '31': '待充值', '41': '充值中', '51': '充值成功', '61': '充值失败', '71': '退款成功', };
@@ -76,21 +76,21 @@ class {componentName} extends React.Component {
    componentWillMount() {
    }
    componentWillReceiveProps(nextProps) {
-      const { merAliMessageTempListResult } = nextProps.$2;
-      if (merAliMessageTempListResult !== this.props.$2.merAliMessageTempListResult) {
-         const { code, data } = merAliMessageTempListResult;
+      const { {cName}ListResult } = nextProps.{cName};
+      if ({cName}ListResult !== this.props.{cName}.{cName}ListResult) {
+         const { code, data } = {cName}ListResult;
          if (code === '0') {
             return this.setState({
                tableData: data.list,
                total: data.total
             });
          }
-         message.error(merAliMessageTempListResult.message);
+         message.error({cName}ListResult.message);
       }
    }
    getData = () => {
       const { postData } = this.state;
-      this.props.dispatch({ type: '$2/merAliMessageTempList', payload: { ...postData } });
+      this.props.dispatch({ type: '{cName}/{cName}List', payload: { ...postData } });
    }
    search = (err, value) => {
       //查询列表
@@ -102,13 +102,13 @@ class {componentName} extends React.Component {
          this.getData();
       })
    }
-   addMessageTemplate = () => {
-      this.props.history.push('/$2/messageTemplateAdd');
+   add{componentName} = () => {
+      this.props.history.push('/{cName}/{cName}Add');
    }
    // 启用禁用
    enableInfo = (record) => {
       this.props.dispatch({
-         type: '$2/merAliMessageTempEnable', payload: { id: record.id, isEnable: !record.isEnable },
+         type: '{cName}/{cName}Enable', payload: { id: record.id, isEnable: !record.isEnable },
          callback: ({ code, data, message: info }) => {
             if (code === '0') {
                message.success(info);
@@ -130,7 +130,7 @@ class {componentName} extends React.Component {
          cancelText: '取消',
          onOk() {
             that.props.dispatch({
-               type: '$2/merAliMessageTempDelete', payload: { id: record.id },
+               type: '{cName}/{cName}Delete', payload: { id: record.id },
                callback: ({ code, data, message: info }) => {
                   if (code === '0') {
                      message.success(info);
@@ -183,7 +183,7 @@ class {componentName} extends React.Component {
                      }
                      {btnArr.find(v => v.enCode === 'lr-edit') &&
                         <a onClick={() => {
-                           this.props.history.push(`/$2/messageTemplateAdd?id=${record.id
+                           this.props.history.push(`/{cName}/{cName}Add?id=${record.id
                               }`)
 
                         }}>编辑</a>
@@ -227,7 +227,7 @@ class {componentName} extends React.Component {
       return (
          <div>
             <TopNav />
-            <Spin spinning={!!this.props.loading.models.$2}>
+            <Spin spinning={!!this.props.loading.models.{cName}}>
                <div className='common-page-content'>
                   <SearchForm
                      onRef={r => this.child = r}
@@ -237,7 +237,7 @@ class {componentName} extends React.Component {
                      toggleSearchForm={this.showmorecallback}
                   />
                   {btnArr.find(v => v.enCode === 'lr-add') && <div className='table-control-bar'>
-                     <Button onClick={this.addMessageTemplate} type='primary' >新增消息模板</Button>
+                     <Button onClick={this.add{componentName}} type='primary' >新增消息模板</Button>
                   </div>}
                   <Table className='bannertable'
                      rowSelection={rowSelection}
