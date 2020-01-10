@@ -4,7 +4,7 @@
   "description": "Util made to quickly create folder with React component, its styles file and test file",
   "author": "834734438",
   "publisher": "834734438",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "engines": {
     "vscode": "^1.30.0"
   },
@@ -18,7 +18,8 @@
   ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
+    "commands": [
+      {
         "command": "extension.createReactClassComponent",
         "title": "Create Class Component"
       },
@@ -28,7 +29,8 @@
       }
     ],
     "menus": {
-      "explorer/context": [{
+      "explorer/context": [
+        {
           "command": "extension.createReactClassComponent",
           "group": "navigation"
         },
