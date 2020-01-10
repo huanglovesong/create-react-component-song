@@ -61,7 +61,7 @@ module.exports = {
         .toString()
         .replace(/{componentName}/g, compName).replace(/{cName}/g, cName);
       // 如果是不同的东西生成的路径不一样
-      let filename = type === 'class' ? `${componentDir}/components/${compName}/${compName}.js` : `${componentDir}/${compName}.jsx`;
+      let filename = type === 'class' ? `${componentDir}/components/${compName}/${compName}.js` : `${componentDir}/${compName}.js`;
 
       return this.createFile(filename, componentContent);
     },
@@ -75,7 +75,7 @@ module.exports = {
         .toString()
         .replace(/{componentName}/g, compName);
 
-      let filename = type ? `${componentDir}/index.jsx` : `${componentDir}/components/${compName}/index.js`;
+      let filename = type ? `${componentDir}/index.js` : `${componentDir}/components/${compName}/index.js`;
 
       return this.createFile(filename, componentContent);
     },
@@ -118,7 +118,7 @@ module.exports = {
     //     .toString()
     //     .replace(/{componentName}/g, compName);
 
-    //   let filename = `${componentDir}/${compName}.test.jsx`;
+    //   let filename = `${componentDir}/${compName}.test.js`;
 
     //   return this.createFile(filename, componentContent);
     // },

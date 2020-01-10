@@ -1,12 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'dva';
-import { Form, message, Button, Modal, Spin, Divider } from 'antd';
-import { getScrollWidth } from '../../utils/common';
+import {  message, Spin } from 'antd';
 import TopNav from '../TopNav';
 import { SearchForm, Table, } from 'fl-pro';
 import './less/{cName}.less';
-@Form.create()
 class {componentName} extends React.Component {
    constructor(props) {
       super(props);
