@@ -13,20 +13,27 @@
     "Snippets"
   ],
   "activationEvents": [
-    "onCommand:extension.createReactClassComponent"
+    "onCommand:extension.createReactClassComponent",
+    "onCommand:extension.initReactComponent"
   ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [
-      {
+    "commands": [{
         "command": "extension.createReactClassComponent",
         "title": "Create Class Component"
+      },
+      {
+        "command": "extension.initReactComponent",
+        "title": "Init React Component"
       }
     ],
     "menus": {
-      "explorer/context": [
-        {
+      "explorer/context": [{
           "command": "extension.createReactClassComponent",
+          "group": "navigation"
+        },
+        {
+          "command": "extension.initReactComponent",
           "group": "navigation"
         }
       ]

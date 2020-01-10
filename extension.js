@@ -22,8 +22,15 @@ function activate(context) {
         }
 
         let componentName = paramCase(val);
-        let componentDir = generators.createComponentDir(uri, componentName);
-
+        let componentDir = type === 'initReactComponent' ? generators.createComponentDir(uri, componentName, true)
+          : generators.createComponentDir(uri, componentName);
+        if (type === 'initReactComponent') {
+          return Promise.all([
+            generators.createComponent(componentDir, componentName, type),
+            generators.createTestFile(componentDir, componentName, type),
+            generators.createCSS(componentDir, componentName, type),
+          ]);
+        }
         return Promise.all([
           generators.createComponent(componentDir, componentName, type),
           generators.createTestFile(componentDir, componentName),
@@ -42,6 +49,10 @@ function activate(context) {
     {
       type: 'class',
       commandID: 'extension.createReactClassComponent'
+    },
+    {
+      type: 'initReactComponent',
+      commandID: 'extension.initReactComponent'
     }
     // ,
     // {

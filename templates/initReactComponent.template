@@ -1,0 +1,117 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'dva';
+import { Form, message, Button, Modal, Spin, Divider } from 'antd';
+import { getScrollWidth } from '../../utils/common';
+import TopNav from '../TopNav';
+import { SearchForm, Table, } from 'fl-pro';
+import './less/{cName}.less';
+@Form.create()
+class {componentName} extends React.Component {
+   constructor(props) {
+      super(props);
+      this.state = {
+         searchConfig: [{
+            label: '订单编号',
+            type: 'Input',
+            name: 'OrderId',
+            placeholder: '请输入订单编号',
+         }],
+         postData: {
+            MerId: localStorage.getItem('MerchantId'),
+            pageIndex: 1,
+            pageSize: 10,
+         },
+         btnArr: window.getAuthButtons(),
+         selectedRowKeys: [],
+         selectedRows: []
+      }
+   }
+   componentWillMount() {
+   }
+   componentWillReceiveProps(nextProps) {
+      const { {cName}ListResult } = nextProps.{cName};
+      if ({cName}ListResult !== this.props.{cName}.{cName}ListResult) {
+         const { code, data } = {cName}ListResult;
+         if (code === '0') {
+            return this.setState({
+               dataSource: data.list,
+               total: data.total
+            });
+         }
+         message.error({cName}ListResult.message);
+      }
+   }
+   getData = () => {
+      const { postData } = this.state;
+      this.props.dispatch({ type: '{cName}/{cName}List', payload: { ...postData } });
+   }
+   search = (err, value) => {
+      //查询列表
+      const { postData } = this.state;
+      postData.pageIndex = 1;
+      this.setState({
+         postData: { ...postData, ...value }
+      }, () => {
+         this.getData();
+      })
+   }
+   render() {
+      const { searchConfig, btnArr, total, postData, dataSource, selectedRowKeys, selectedRows } = this.state;
+      const tableColums = [
+         { title: '序号', width: 80, key: 'index', dataIndex: 'index', fixed: 'left', render(text, record, index) { return index + 1 } },
+      ]
+      const pagination = {
+         total,
+         showQuickJumper: true,
+         pageSize: postData.pageSize,
+         current: postData.pageIndex,
+         pageSizeOptions: ['30', '50', '100'],
+         onShowSizeChange: (current, pageSize) => {
+            this.setState({ postData: { ...postData, pageIndex: current, pageSize: pageSize } }, () => {
+               this.getData();
+            })
+         },
+         onChange: (current, pageSize) => {
+            console.log(current, 'current');
+            this.setState({ postData: { ...postData, pageIndex: current, pageSize: pageSize } }, () => {
+               this.getData();
+            })
+         },
+      };
+      const rowSelection = {
+         selectedRowKeys,
+         onChange: (selectedRowKeys, selectedRows) => {
+            this.setState({ selectedRows, selectedRowKeys });
+         },
+      };
+      return (
+         <div>
+            <TopNav />
+            <Spin spinning={!!this.props.loading.models.{cName}}>
+               <div className='common-page-content'>
+                  <SearchForm
+                     onRef={r => this.child = r}
+                     searchConfig={searchConfig}
+                     search={this.search}
+                     key={1}
+                     toggleSearchForm={this.showmorecallback}
+                  />
+                  <Table
+                     rowSelection={rowSelection}
+                     pagination={pagination} rowKey='id'
+                     columns={tableColums}
+                     dataSource={dataSource} />
+               </div>
+            </Spin>
+         </div>
+      )
+   }
+}
+
+const mapStateToProps = (state) => {
+   return {
+      ...state,
+   };
+}
+export default connect(mapStateToProps)({componentName});

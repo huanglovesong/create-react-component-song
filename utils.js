@@ -31,7 +31,7 @@ module.exports = {
     resolveWorkspaceRoot: path =>
       path.replace('${workspaceFolder}', vscode.workspace.rootPath),
 
-    createComponentDir: function (uri, componentName) {
+    createComponentDir: function (uri, componentName, isInit) {
       let contextMenuSourcePath;
 
       if (uri && fs.lstatSync(uri.fsPath).isDirectory()) {
@@ -42,7 +42,9 @@ module.exports = {
         contextMenuSourcePath = vscode.workspace.rootPath;
       }
 
-      let componentDir = `${contextMenuSourcePath}`;
+      let componentDir = isInit ? `${contextMenuSourcePath}/${pascalCase(
+        componentName
+      )}` : `${contextMenuSourcePath}`;
       fse.mkdirsSync(componentDir);
 
       return componentDir;
@@ -58,11 +60,12 @@ module.exports = {
         .readFileSync(templateFileName)
         .toString()
         .replace(/{componentName}/g, compName).replace(/{cName}/g, cName);
-      let filename = `${componentDir}/components/${compName}/${compName}.js`;
+      // 如果是不同的东西生成的路径不一样
+      let filename = type === 'class' ? `${componentDir}/components/${compName}/${compName}.js` : `${componentDir}/${compName}.jsx`;
 
       return this.createFile(filename, componentContent);
     },
-    createTestFile: function (componentDir, componentName) {
+    createTestFile: function (componentDir, componentName, type) {
       let templateFileName = this.templatesDir + `/test.template`;
 
       const compName = pascalCase(componentName);
@@ -72,7 +75,7 @@ module.exports = {
         .toString()
         .replace(/{componentName}/g, compName);
 
-      let filename = `${componentDir}/components/${compName}/index.js`;
+      let filename = type ? `${componentDir}/index.jsx` : `${componentDir}/components/${compName}/index.js`;
 
       return this.createFile(filename, componentContent);
     },
@@ -134,7 +137,7 @@ module.exports = {
     //   return this.createFile(filename, indexContent);
     // },
 
-    createCSS: function (componentDir, componentName) {
+    createCSS: function (componentDir, componentName, type) {
       let templateFileName = `${this.templatesDir}/sass.template`;
 
       const compName = camelCase(componentName);
@@ -143,7 +146,7 @@ module.exports = {
         .toString()
         .replace(/{componentName}/g, compName);
 
-      let filename = `${componentDir}/components/${compName}/less/${compName}.less`;
+      let filename = type ? `${componentDir}/less/${compName}.less` : `${componentDir}/components/${compName}/less/${compName}.less`;
 
       return this.createFile(filename, cssContent);
     }
