@@ -104,7 +104,7 @@ class {componentName} extends React.Component {
          this.getData();
       })
    }
-   add{componentName} = () => {
+   add{componentName} = (filed, flag) => {
       this.setState({
          [filed]: flag
       })
