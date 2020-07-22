@@ -1,0 +1,103 @@
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import {
+    Form,
+    Spin,
+    Input,
+    Row,
+    Modal,
+    InputNumber,
+    DatePicker,
+    Radio
+} from 'antd';
+const { RangePicker } = DatePicker;
+const FormItem = Form.Item;
+class AddFlashSaleProductQuotaModal extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+        };
+    }
+    componentDidMount() {
+    }
+    handleClose = () => {
+        this.props.hideFildModel('showModal', false);
+    }
+    sureAdd = () => {
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                console.log(values, 111)
+            }
+        });
+    }
+    render() {
+        const { getFieldDecorator } = this.props.form;
+        const { clickRecord } = this.props;
+        const formItemLayout2 = {
+            labelCol: { span: 8 },
+            wrapperCol: { span: 12 },
+        }
+        return (
+            <Modal
+                width={500}
+                title={'追加名额'}
+                visible
+                maskClosable={false}
+                onCancel={this.handleClose}
+                onOk={this.sureAdd}
+            >
+                <Spin spinning={!!this.props.loading.models.productlist}>
+                    <Form>
+                        <Form>
+                            <FormItem {...formItemLayout2} label='活动名称'>
+                                {getFieldDecorator('quota0', {
+                                    initialValue: '',
+                                    rules: [
+                                        { required: true, message: '请输入活动名称', },
+                                    ]
+                                })(
+                                    <Input maxLength={10} style={{ width: '100%' }} placeholder='字数限制10个字符' />
+                                )}
+                            </FormItem>
+                            <FormItem {...formItemLayout2} label='活动时间'>
+                                {getFieldDecorator('quota1', {
+                                    initialValue: '',
+                                    rules: [
+                                        { required: true, message: '请选择活动时间', },]
+                                })(
+                                    <RangePicker
+                                        className='timepicker'
+                                    />
+                                )}
+                            </FormItem>
+                            <FormItem {...formItemLayout2} label='活动类型'>
+                                {getFieldDecorator('quota2', {
+                                    initialValue: '',
+                                    rules: [
+                                        { required: true, message: '请选择活动类型', },
+                                    ]
+                                })(
+                                    <Radio.Group>
+                                        <Radio value={1}>单个商品</Radio>
+                                        <Radio value={2}>多个商品</Radio>
+                                    </Radio.Group>
+                                )}
+                            </FormItem>
+                            <FormItem {...formItemLayout2} label='活动规则'>
+                                {getFieldDecorator('quota3', {
+                                    initialValue: '',
+                                    rules: [
+                                        { required: true, message: '请输入活动名称', },
+                                    ]
+                                })(
+                                    <Input.TextArea rows={4} placeholder='字数限制1000个字符' />
+                                )}
+                            </FormItem>
+                        </Form>
+                    </Form>
+                </Spin>
+            </Modal>
+        )
+    }
+}
+export default connect(state => ({ ...state }))(Form.create()(AddFlashSaleProductQuotaModal));

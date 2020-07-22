@@ -30,7 +30,7 @@ module.exports = {
 
     resolveWorkspaceRoot: path =>
       path.replace('${workspaceFolder}', vscode.workspace.rootPath),
-
+    // 返回需要返回的路径
     createComponentDir: function (uri, componentName, isInit) {
       let contextMenuSourcePath;
 
@@ -41,7 +41,7 @@ module.exports = {
       } else {
         contextMenuSourcePath = vscode.workspace.rootPath;
       }
-
+      // if 是初始化页面写入的路径 else 初始化页面整体模板
       let componentDir = isInit ? `${contextMenuSourcePath}/${pascalCase(
         componentName
       )}` : `${contextMenuSourcePath}`;
@@ -49,10 +49,11 @@ module.exports = {
 
       return componentDir;
     },
-
+    // 创建组件
     createComponent: function (componentDir, componentName, type) {
+      // 读取我们自定义的模板
       let templateFileName = this.templatesDir + `/${type}.template`;
-
+      // 处理驼峰大小写的名称
       const compName = pascalCase(componentName);
       const cName = camelCase(componentName);
       console.log(componentDir, 23123);
@@ -60,11 +61,26 @@ module.exports = {
         .readFileSync(templateFileName)
         .toString()
         .replace(/{componentName}/g, compName).replace(/{cName}/g, cName);
-      // 如果是不同的东西生成的路径不一样
+      // if 是初始化页面写入的路径 else 初始化页面整体模板
       let filename = type === 'class' ? `${componentDir}/components/${compName}/${compName}.js` : `${componentDir}/${compName}.js`;
 
       return this.createFile(filename, componentContent);
     },
+    // 创建modal弹框组件
+    createModalComponent: function (componentDir, componentName, type) {
+      // 读取我们自定义的模板
+      let templateFileName = this.templatesDir + `/showModal.template`;
+      // 处理驼峰大小写的名称
+      const compName = pascalCase(componentName);
+      let componentContent = fs
+        .readFileSync(templateFileName)
+        .toString()
+      // if 是初始化页面写入的路径 else 初始化页面整体模板
+      let filename = `${componentDir}/components/${compName}/ShowModal.js`;
+
+      return this.createFile(filename, componentContent);
+    },
+    // 创建index.js
     createTestFile: function (componentDir, componentName, type) {
       let templateFileName = this.templatesDir + `/test.template`;
 
@@ -79,6 +95,7 @@ module.exports = {
 
       return this.createFile(filename, componentContent);
     },
+    // 创建models文件
     createModelFile: function (componentDir, componentName) {
       let templateFileName = this.templatesDir + `/models.template`;
 
@@ -93,7 +110,7 @@ module.exports = {
 
       return this.createFile(filename, componentContent);
     },
-
+    // 创建services文件
     createServiceFile: function (componentDir, componentName) {
       let templateFileName = this.templatesDir + `/services.template`;
 
@@ -108,35 +125,7 @@ module.exports = {
 
       return this.createFile(filename, componentContent);
     },
-    // createTestFile: function (componentDir, componentName) {
-    //   let templateFileName = this.templatesDir + `/test.template`;
-
-    //   const compName = pascalCase(componentName);
-
-    //   let componentContent = fs
-    //     .readFileSync(templateFileName)
-    //     .toString()
-    //     .replace(/{componentName}/g, compName);
-
-    //   let filename = `${componentDir}/${compName}.test.js`;
-
-    //   return this.createFile(filename, componentContent);
-    // },
-
-    // createPackageJSON: function(componentDir, componentName) {
-    //   let templateFileName = this.templatesDir + '/package.template';
-
-    //   const compName = pascalCase(componentName);
-    //   let indexContent = fs
-    //     .readFileSync(templateFileName)
-    //     .toString()
-    //     .replace(/{componentName}/g, compName);
-
-    //   let filename = `${componentDir}/package.json`;
-
-    //   return this.createFile(filename, indexContent);
-    // },
-
+    // 创建less文件
     createCSS: function (componentDir, componentName, type) {
       let templateFileName = `${this.templatesDir}/sass.template`;
 

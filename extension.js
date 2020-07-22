@@ -22,8 +22,10 @@ function activate(context) {
         }
 
         let componentName = paramCase(val);
+        // if 是初始化页面写入的路径 else 初始化页面整体模板
         let componentDir = type === 'initReactComponent' ? generators.createComponentDir(uri, componentName, true)
           : generators.createComponentDir(uri, componentName);
+        // if 是初始化页面写入的路径 else 初始化页面整体模板
         if (type === 'initReactComponent') {
           return Promise.all([
             generators.createComponent(componentDir, componentName, type),
@@ -33,6 +35,7 @@ function activate(context) {
         }
         return Promise.all([
           generators.createComponent(componentDir, componentName, type),
+          generators.createModalComponent(componentDir, componentName, type),
           generators.createTestFile(componentDir, componentName),
           generators.createCSS(componentDir, componentName),
           generators.createModelFile(componentDir, componentName),
@@ -44,7 +47,7 @@ function activate(context) {
         err => logger('error', err.message)
       );
   };
-
+  // 注册命令
   const componentsList = [
     {
       type: 'class',
@@ -54,12 +57,6 @@ function activate(context) {
       type: 'initReactComponent',
       commandID: 'extension.initReactComponent'
     }
-    // ,
-    // {
-    //   type: 'functional',
-    //   commandID: 'extension.createReactFunctionalComponent'
-    // },
-    // { type: 'pure', commandID: 'extension.createReactPureComponent' }
   ];
 
   componentsList.forEach(comp => {
@@ -71,9 +68,10 @@ function activate(context) {
   });
 }
 
-function deactivate() { }
-
+/**
+ * 插件被激活时触发，所有代码总入口
+ * @param {*} context 插件上下文
+ */
 module.exports = {
-  activate,
-  deactivate
+  activate
 };

@@ -6,6 +6,7 @@ import moment from 'moment';
 import { getScrollWidth } from '../../utils/common';
 import TopNav from '../TopNav';
 import { SearchForm, Table, } from 'fl-pro';
+import ShowModal from './ShowModal';
 import './less/{cName}.less';
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
@@ -70,7 +71,8 @@ class {componentName} extends React.Component {
          },
          btnArr: window.getAuthButtons(),
          selectedRowKeys: [],
-         selectedRows: []
+         selectedRows: [],
+         showModal: false
       }
    }
    componentWillMount() {
@@ -103,7 +105,10 @@ class {componentName} extends React.Component {
       })
    }
    add{componentName} = () => {
-      this.props.history.push('/{cName}/{cName}Add');
+      this.setState({
+         [filed]: flag
+      })
+      //  this.props.history.push('/{cName}/{cName}Add');
    }
    // 启用禁用
    enableInfo = (record) => {
@@ -146,7 +151,7 @@ class {componentName} extends React.Component {
       });
    }
    render() {
-      const { searchConfig, btnArr, total, postData, tableData, selectedRowKeys, selectedRows } = this.state;
+      const { searchConfig, btnArr, total, postData, tableData, selectedRowKeys, selectedRows ,showModal} = this.state;
       const tableColums = [
          { title: '序号', width: 80, key: 'index', dataIndex: 'index', fixed: 'left', render(text, record, index) { return index + 1 } },
          {
@@ -237,7 +242,7 @@ class {componentName} extends React.Component {
                      toggleSearchForm={this.showmorecallback}
                   />
                   {btnArr.find(v => v.enCode === 'lr-add') && <div className='table-control-bar'>
-                     <Button onClick={this.add{componentName}} type='primary' >新增消息模板</Button>
+                     <Button onClick={() => this.add{componentName}('showModal', true)} type='primary' >新增消息模板</Button>
                   </div>}
                   <Table className='bannertable'
                      rowSelection={rowSelection}
@@ -246,6 +251,7 @@ class {componentName} extends React.Component {
                      dataSource={tableData} />
                </div>
             </Spin>
+            {showModal && <ShowModal hideFildModel={this.add{componentName}} />}
          </div>
       )
    }
