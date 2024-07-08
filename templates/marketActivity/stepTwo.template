@@ -1,0 +1,101 @@
+import React, { useState, useEffect, Fragment, useCallback, forwardRef, useImperativeHandle } from 'react'
+import { connect } from 'dva';
+import PropTypes from 'prop-types'
+import {
+    Form,
+    Spin,
+    Button,
+    Input,
+    Tooltip,
+    DatePicker,
+    Row, Col, Select,
+    PageHeader,
+    Radio,
+    InputNumber,
+} from 'antd';
+import AddProduct from './components/AddProduct'
+import mathmanage from '../../utils/mathmanage';
+import { getMerTemplateConfigure } from '../../services/bannerList'
+const FormItem = Form.Item;
+
+const Option = Select.Option;
+const RadioGroup = Radio.Group;
+// import './less/addMemberCardManage.less';
+const formItemLayout = {
+    labelCol: {
+        sm: { span: 4 },
+    },
+    wrapperCol: {
+        sm: { span: 16 },
+    },
+}
+
+const formItemLayout2 = {
+    labelCol: {
+        sm: { span: 4 },
+    },
+    wrapperCol: {
+        sm: { span: 20 },
+    },
+}
+const tailLayout = {
+    wrapperCol: { offset: 4, span: 18 },
+};
+// import './less/couponsList.less';
+const StepTwo = forwardRef((props, ref) => {
+    const id = mathmanage.getParam('id');
+    const isCopy = mathmanage.getParam('isCopy');
+
+    const { getFieldDecorator, getFieldValue, setFieldsValue } = props.form;
+    // const [rulesEditorContent, setRulesEditorContent] = useState('')
+    // const [editorContent, setEditorContent] = useState('')
+    const { detailData, disabled, activityStatus } = props;
+    const [channel, setChannel] = useState([]);
+
+    useEffect(() => {
+        // 获取店铺
+        if (disabled) {
+            if (detailData.productConfigList) {
+                setTotalStock();
+            }
+        }
+    }, [detailData])
+
+    const setTotalStock = () => {
+        let totalNum = 0;
+        getFieldValue('productConfigList').map(v => {
+            totalNum += v.productStock > 0 ? mathmanage.accDiv(v.productStock, v.exchangeNum || 1) : 0;
+        })
+        setFieldsValue({
+            'num': totalNum
+        })
+    }
+    return (
+        <Form className='width-100'>
+            <PageHeader title="商品配置"></PageHeader>
+            <FormItem {...formItemLayout2} label="">
+                {/* 需要手动引入 import PickProductModal from "../PickProductModal"; 组件  */}
+                {getFieldDecorator("productConfigList", {
+                })(<AddProduct detailData={detailData} disabled={disabled} setTotalStock={setTotalStock} />)}
+            </FormItem>
+            <FormItem {...formItemLayout2} label="发放数量">
+                {getFieldDecorator("num", {
+                    rules: [{ required: true, message: "发放数量" }],
+                })(<InputNumber
+                    min={0} precision={0} disabled={true} />)}
+                <span> 张</span>
+            </FormItem>
+            <FormItem {...tailLayout}>
+                <Button htmlType="button" onClick={() => props.btnSetCurrent(0)} className="btn-save">
+                    上一步
+                </Button>
+                <Button type="primary" onClick={props.btnOkStepTwo}>
+                    保存
+                </Button>
+            </FormItem>
+        </Form>
+    );
+});
+
+
+export default connect(state => ({ ...state }))(StepTwo);

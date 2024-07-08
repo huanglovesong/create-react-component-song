@@ -1,0 +1,192 @@
+import React, { useState, useEffect, Fragment, useCallback, forwardRef, useImperativeHandle } from 'react'
+import { connect } from 'dva';
+import PropTypes from 'prop-types'
+import {
+    Form,
+    Spin,
+    Button,
+    Input,
+    Tooltip,
+    DatePicker,
+    Row, Col, Select,
+    PageHeader,
+    Radio,
+    Icon,
+} from 'antd';
+import RangeDatePickerShort from "commonComponents/RangeDatePickerShort";
+import mathmanage from '../../utils/mathmanage';
+import { getMerTemplateConfigure } from '../../services/bannerList'
+const FormItem = Form.Item;
+
+const Option = Select.Option;
+const RadioGroup = Radio.Group;
+// import './less/addMemberCardManage.less';
+const formItemLayout = {
+    labelCol: {
+        sm: { span: 4 },
+    },
+    wrapperCol: {
+        sm: { span: 16 },
+    },
+}
+
+const formItemLayout2 = {
+    labelCol: {
+        sm: { span: 4 },
+    },
+    wrapperCol: {
+        sm: { span: 20 },
+    },
+}
+// import './less/couponsList.less';
+const StepOne = forwardRef((props, ref) => {
+    const id = mathmanage.getParam('id');
+    const isCopy = mathmanage.getParam('isCopy');
+
+    const { getFieldDecorator, getFieldValue } = props.form;
+    // const [rulesEditorContent, setRulesEditorContent] = useState('')
+    // const [editorContent, setEditorContent] = useState('')
+    const { detailData, disabled, activityStatus } = props;
+    const [channel, setChannel] = useState([]);
+
+    useEffect(() => {
+        // 获取店铺
+        getMerTemplateConfigureList();
+    }, [])
+
+    const getMerTemplateConfigureList = async () => {
+        try {
+            const res = await getMerTemplateConfigure()
+            if (res.code == '10000') {
+                setChannel(res.data.list);
+            }
+        } catch (error) { }
+    }
+    console.log(detailData, 88877)
+    return (
+        <Form className='width-100'>
+            <PageHeader title="基础信息"></PageHeader>
+            <Form.Item label='所属店铺' {...formItemLayout}>
+                {getFieldDecorator('codeKey', {
+                    initialValue: detailData.codeKey,
+                    rules: [{ required: true, message: '请选择所属店铺' }]
+                })(
+                    <Select placeholder='请选择所属店铺' disabled={disabled}>
+                        {channel.map(item => <Option key={item.codeKey} value={item.codeKey}>{item.pageName}</Option>)}
+                    </Select>
+                )}
+            </Form.Item>
+            <FormItem {...formItemLayout} label="活动名称">
+                {getFieldDecorator("name", {
+                    rules: [{ required: true, message: "请输入活动名称" }],
+                })(
+                    <Input
+                        placeholder="最多16个字"
+                        maxLength={20}
+                        disabled={disabled}
+                    />
+                )}
+            </FormItem>
+            <FormItem {...formItemLayout} label="活动描述">
+                {getFieldDecorator("activityDes", {
+                    rules: [{ required: true, message: "请输入活动描述" }],
+                })(
+                    <Input
+                        placeholder="仅后台显示，便于运营人员区分相似活动"
+                        maxLength={20}
+                        disabled={disabled}
+                    />
+                )}
+            </FormItem>
+            {/*单项时间控件，自带开始时间，结束时间
+  import RangeDatePickerShort from "../RangeDatePickerShort";
+  */}
+            <FormItem {...formItemLayout} label={<span><span style={{ color: "red", marginRight: "4px", fontFamily: "SimSun,sans-serif" }}>*</span><span>活动有效期 &nbsp;<Tooltip title={(
+                <div>即生成的券码可兑换的时间</div>
+            )}>
+                <Icon type='question-circle-o' />
+            </Tooltip>
+            </span></span>} style={{ marginBottom: 0 }}>
+                <RangeDatePickerShort
+                    form={props.form}
+                    opts={[{ disabled: disabled }, { disabled: disabled }]}
+                    startFieldName="startTime"
+                    endFieldName="endTime"
+
+                    detailData={detailData}
+                />
+            </FormItem>
+            <FormItem {...formItemLayout} label="领券商户表示">
+                {getFieldDecorator("merchantIdentityCode", {
+                    rules: [{ required: true, message: "请输入领券商户表示" }],
+                })(
+                    <Input
+                        disabled={disabled}
+                        placeholder="商户号+商户名称，例如9002026骑士卡"
+                    />
+                )}
+            </FormItem>
+
+            <PageHeader title="基础信息"></PageHeader>
+            <FormItem {...formItemLayout} label="结算方式">
+                {getFieldDecorator("settlementType", {
+                    rules: [{ required: true, message: "请选择结算方式" }],
+                })(
+                    <RadioGroup disabled={disabled}>
+                        <Radio value={1}>核销结算</Radio>
+                        <Radio value={2}>采购结算</Radio>
+                    </RadioGroup>
+                )}
+            </FormItem>
+            <FormItem {...formItemLayout} label="取卡方式">
+                {getFieldDecorator("getCardType", {
+                    rules: [{ required: true, message: "请选择取卡方式" }],
+                })(
+                    <RadioGroup disabled={disabled}>
+                        <Radio
+                            value={1}
+                        >
+                            线上
+                        </Radio>
+                        <Radio
+                            value={2}
+                        >
+                            线下
+                        </Radio>
+                    </RadioGroup>
+                )}
+            </FormItem>
+            <FormItem {...formItemLayout} label="券码位数">
+                {getFieldDecorator("cardLength", {
+                    rules: [{ required: true, message: "请选择券码长度" }],
+                })(
+                    <RadioGroup disabled={disabled}>
+                        <Radio value={12}>12位</Radio>
+                        <Radio value={16}>16位</Radio>
+                    </RadioGroup>
+                )}
+            </FormItem>
+            <FormItem {...formItemLayout} label="是否生成短链接">
+                {getFieldDecorator("isCreateShortUrl", {
+                    rules: [
+                        { required: true, message: "请选择是否生成短链接" },
+                    ],
+                })(
+                    <RadioGroup disabled={disabled}>
+                        <Radio value={false}>不生成短链接</Radio>
+                        <Radio value={true}>生成短链接</Radio>
+                    </RadioGroup>
+                )}
+            </FormItem>
+            <Row className='btn-row'>
+                <Col className='submit-b' span={12} offset={4}>
+                    <Button onClick={props.btnOkStepOne} type='primary'>下一步</Button>
+                    <Button style={{ marginLeft: '8px' }} onClick={() => { props.history.push('/memberCardManage') }}>取消</Button>
+                </Col>
+            </Row>
+        </Form>
+    );
+});
+
+
+export default connect(state => ({ ...state }))(StepOne);

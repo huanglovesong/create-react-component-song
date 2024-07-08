@@ -1,0 +1,124 @@
+import React, { Component, Fragment } from 'react';
+import { connect } from 'dva';
+import {
+    Form,
+    Spin,
+    Input,
+    Tooltip,
+    Icon,
+    Button,
+    DatePicker,
+    Radio
+} from 'antd';
+const { RangePicker } = DatePicker;
+import RangeDatePickerShort from "commonComponents/RangeDatePickerShort"
+import moment from 'moment'
+import TopBack from "../TopBack";
+const FormItem = Form.Item;
+class AddFlashSaleProductQuotaModal extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            detailData: {
+   
+            },
+        };
+    }
+    componentDidMount() {
+    }
+    handleClose = () => {
+        this.props.hideFildModel('showModal', false);
+    }
+    sureAdd = () => {
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                console.log(values, 111)
+            }
+        });
+    }
+    render() {
+        const { getFieldDecorator } = this.props.form;
+        const { clickRecord } = this.props;
+        const { detailData } = this.state;
+        const formItemLayout = {
+            labelCol: { span: 4 },
+            wrapperCol: { span: 12 },
+        }
+        const formTailLayout = {
+            labelCol: { span: 4 },
+            wrapperCol: { span: 20, offset: 4 },
+        };
+        return (
+            <div>
+                <TopBack />
+                <div className="common-page-content coupons-list-add">
+                    <Spin spinning={!!this.props.loading.models.productlist}>
+                        <Form>
+                            <Form>
+                                <FormItem {...formItemLayout} label='活动名称'>
+                                    {getFieldDecorator('quota0', {
+                                        initialValue: '',
+                                        rules: [
+                                            { required: true, message: '请输入活动名称', },
+                                        ]
+                                    })(
+                                        <Input maxLength={10} style={{ width: '100%' }} placeholder='字数限制10个字符' />
+                                    )}
+                                </FormItem>
+                                <FormItem {...formItemLayout} label={<span><span style={{ color: "red", marginRight: "4px", fontFamily: "SimSun,sans-serif" }}>*</span>活动时间</span>} style={{ marginBottom: 0 }}>
+                                    <RangeDatePickerShort
+                                        dateRange={365}
+                                        form={this.props.form}
+                                        startFieldName="startTime"
+                                        endFieldName="endTime"
+                                        opts={{ showTimeObj: { startTime: { defaultValue: moment("00:00:00", "HH:mm:ss") }, endTime: { defaultValue: moment("23:59:59", "HH:mm:ss") } } }}
+                                        detailData={detailData}
+                                    />
+                                </FormItem>
+                                <FormItem {...formItemLayout} label='活动类型'>
+                                    {getFieldDecorator('quota2', {
+                                        initialValue: '',
+                                        rules: [
+                                            { required: true, message: '请选择活动类型', },
+                                        ]
+                                    })(
+                                        <Radio.Group>
+                                            <Radio value={1}>单个商品</Radio>
+                                            <Radio value={2}>多个商品</Radio>
+                                        </Radio.Group>
+                                    )}
+                                </FormItem>
+                                <FormItem {...formItemLayout} label='活动规则'>
+                                    {getFieldDecorator('quota3', {
+                                        initialValue: '',
+                                        rules: [
+                                            { required: true, message: '请输入活动名称', },
+                                        ]
+                                    })(
+                                        <Input.TextArea rows={4} placeholder='字数限制1000个字符' />
+                                    )}
+                                </FormItem>
+                                <FormItem {...formTailLayout}>
+                                    {getFieldDecorator("control", {
+                                        rules: [],
+                                        initialValue: "",
+                                    })(
+                                        <Fragment>
+                                            <Button className="mar-right-width" type="primary" onClick={this.sureAdd}>
+                                                保存
+                                            </Button>
+                                            <Button onClick={this.handleCancel}>取消</Button>
+                                        </Fragment>,
+                                    )}
+                                </FormItem>
+                            </Form>
+                        </Form>
+                    </Spin>
+
+                </div>
+
+            </div>
+        )
+    }
+}
+export default connect(state => ({ ...state }))(Form.create()(AddFlashSaleProductQuotaModal));

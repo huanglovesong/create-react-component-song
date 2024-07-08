@@ -4,7 +4,7 @@
   "description": "Util made to quickly create folder with React component, its styles file and test file",
   "author": "834734438",
   "publisher": "834734438",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "engines": {
     "vscode": "^1.30.0"
   },
@@ -14,6 +14,7 @@
   ],
   "activationEvents": [
     "onCommand:extension.createReactClassComponent",
+    "onCommand:extension.createReactActivityClassComponent",
     "onCommand:extension.initReactComponent"
   ],
   "main": "./extension.js",
@@ -22,6 +23,10 @@
       {
         "command": "extension.createReactClassComponent",
         "title": "Create Class Component"
+      },
+      {
+        "command": "extension.createReactActivityClassComponent",
+        "title": "Create Class ActivityComponent"
       },
       {
         "command": "extension.initReactComponent",
@@ -35,6 +40,10 @@
           "group": "navigation"
         },
         {
+          "command": "extension.createReactActivityClassComponent",
+          "group": "navigation"
+        },
+        {
           "command": "extension.initReactComponent",
           "group": "navigation"
         }
@@ -43,7 +52,8 @@
   },
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "node ./node_modules/vscode/bin/test"
+    "test": "node ./node_modules/vscode/bin/test",
+    "publish": "vsce publish patch"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",
@@ -57,5 +67,6 @@
     "fs": "0.0.1-security",
     "fs-extra": "^7.0.1"
   },
-  "repository": "https://github.com/huanglovesong/create-react-component-song.git"
+  "repository": "https://github.com/huanglovesong/create-react-component-song.git",
+  "__npminstall_done": false
 }

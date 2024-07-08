@@ -1,0 +1,234 @@
+import React, { useState, useEffect, Fragment, useRef } from 'react'
+import { connect } from 'dva';
+import PropTypes from 'prop-types'
+import {
+    Form,
+    Spin,
+    Steps,
+    message
+} from 'antd';
+import parse from "url-parse";
+import moment from 'moment';
+import TopNav from '../TopNav';
+import StepOne from './StepOne'
+import StepTwo from './StepTwo'
+
+import './less/add.less'
+
+const { Step } = Steps;
+
+const steps = [
+    {
+        title: "活动配置",
+        content: "1",
+    },
+    {
+        title: "权益商品",
+        content: "2",
+    },
+    {
+        title: "页面装修",
+        content: "3",
+    },
+];
+
+const leftMenu = [
+    {
+        id: 1,
+        name: "活动首页",
+        imgUrl: "https://fulu-mall.oss-cn-hangzhou.aliyuncs.com/da845724-e66c-43a3-aa74-d22be43c18ba/Image/22800fe167764668932b7e8668e4ea87.png",
+    },
+    {
+        id: 2,
+        name: "商品详情",
+        imgUrl: "https://fulu-mall.oss-cn-hangzhou.aliyuncs.com/da845724-e66c-43a3-aa74-d22be43c18ba/Image/4662340ece7c4389a215cf639fbd1d86.png",
+    },
+];
+const initLeftMenuObj = {
+    clickId: 1,
+    name: "活动首页",
+    imgUrl: "https://fulu-mall.oss-cn-hangzhou.aliyuncs.com/da845724-e66c-43a3-aa74-d22be43c18ba/Image/22800fe167764668932b7e8668e4ea87.png",
+};
+// import './less/couponsList.less';
+function Add(props) {
+    const url = parse(props.location.search, true);
+    const { isCopy, isView, batchId } = url.query;
+    const [current, setCurrent] = useState(0);
+
+    const stepOneRef = useRef(null);
+    const stepTwoRef = useRef(null);
+    const [disabled, setDisabled] = useState(!!(batchId && !isCopy));
+    const [detailData, setDetailData] = useState({
+        settlementType: 2,
+        getCardType: 1,
+        cardLength: 12,
+        isCreateShortUrl: false
+    });
+    const [leftMenuClickObj, setLeftMenuClickObj] = useState(initLeftMenuObj);
+
+    useEffect(() => {
+
+        if (batchId) {
+            getMerEquityCardDetail();
+        }
+        else {
+            props.form.setFieldsValue(detailData);
+        }
+    }, [])
+    const getMerEquityCardDetail = () => {
+        props
+            .dispatch({
+                type: "{cName}/{cName}GetDetail",
+                payload: { batchId },
+            })
+            .then(({ code, data, message: info }) => {
+                if (code === "10000") {
+                    if (data.productConfigList) {
+                        data.productConfigList.forEach((v) => {
+                            v.oldStock = v.productStock;
+                        });
+                    }
+                    setDetailData({ ...data });
+                    props.form.setFieldsValue({ ...data });
+                } else {
+                    message.error(info);
+                }
+            });
+    };
+    const clickLeftMenu = (item) => {
+        setLeftMenuClickObj({ ...item, clickId: item.id });
+    };
+    const btnOkStepOne = () => {
+        props.form.validateFields(['codeKey', 'name', 'activityDes', 'startDatePickerFieldName', 'endDatePickerFieldName',
+            'merchantIdentityCode', 'settlementType', 'getCardType', 'cardLength', 'isCreateShortUrl'], (err, values) => {
+                if (!err) {
+                    console.log(values, 'values')
+                    btnSetCurrent(1);
+                }
+            });
+    }
+
+    const btnOkStepTwo = () => {
+        props.form.validateFields(['productConfigList', 'num'], (err, values) => {
+            if (!err) {
+                console.log(values, 'values')
+
+                const { productConfigList } = values;
+
+                if (productConfigList && productConfigList.length < 1) {
+                    return message.warning('请添加活动商品');
+                }
+                let errorMessage = "";
+                for (const item of productConfigList || []) {
+                    if (!item.supplierProductName && !errorMessage) {
+                        errorMessage = `商品名称必填`;
+                        break;
+                    }
+                    if (!item.supplierProductCode && !errorMessage) {
+                        errorMessage = `供应商商品编号必填`;
+                        break;
+                    }
+                    if (!item.supplierId && !errorMessage) {
+                        errorMessage = `供应商必填`;
+                        break;
+                    }
+                    if (!item.sort && !errorMessage) {
+                        errorMessage = `商品排序必填`;
+                        break;
+                    }
+                    if (!item.productStock && item.productStock !== 0 && !errorMessage) {
+                        errorMessage = `商品库存必填`;
+                        break;
+                    }
+                    if (!item.productImage && !errorMessage) {
+                        errorMessage = `商品奖品图片必填`;
+                        break;
+                    }
+                }
+                if (errorMessage) {
+                    return message.warning(errorMessage);
+                }
+                let oldTotalStock = 0;
+                productConfigList.map(v => {
+                    oldTotalStock += v.oldStock > 0 ? mathmanage.accDiv(v.oldStock, v.exchangeNum || 1) : 0;
+                })
+                if (detailData.num == 0) {
+                    return message.warning('商品库存不能全部为0，请调整商品库存');
+                }
+                btnSave();
+            }
+        });
+    }
+    const btnSave = () => {
+        props.form.validateFields((err, values) => {
+            console.log(values, 'btnSave')
+            props
+                .dispatch({
+                    type: `{cName}/${disabled ? "{cName}Edit" : "{cName}Add"}`,
+                    payload: {
+                        ...values
+                    },
+                })
+                .then((res) => {
+                    const { code, data } = res;
+                    if (code === "10000") {
+                        props.history.push("/{cName}");
+                    }
+                });
+        })
+    }
+    const btnSetCurrent = (current) => {
+        setCurrent(current);
+    }
+    return (
+        <div>
+            <Spin spinning={!!props.loading.models.{cName}}>
+
+                <TopNav />
+                <div className='common-page-content clearfix {cName}Add'>
+
+                    <div className="form-content">
+                        <Fragment>
+                            <div className="form-content-left">
+                                {leftMenu.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className={`item ${item.id === leftMenuClickObj.clickId ? "active" : ""}`}
+                                        onClick={() => clickLeftMenu(item)}
+                                    >
+                                        {item.name}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="form-content-center">
+                                <img src={leftMenuClickObj.imgUrl} />
+                            </div>
+                            <div className='form-content-right'>
+                                <div className="steps-box">
+                                    <Steps size="small" current={current}>
+                                        {steps.map((item) => (
+                                            <Step key={item.content} title={item.title} />
+                                        ))}
+                                    </Steps>
+                                </div>
+                                <div className='all-box width-100'>
+                                    <Form className='width-100'>
+                                        <div style={{ display: current === 0 ? 'block' : 'none' }}>
+                                            <StepOne btnSetCurrent={btnSetCurrent} form={props.form} ref={stepOneRef} disabled={disabled} detailData={detailData} btnOkStepOne={btnOkStepOne} />
+                                        </div>
+                                        <div style={{ display: current === 1 ? 'block' : 'none' }}>
+                                            <StepTwo btnSetCurrent={btnSetCurrent} form={props.form} ref={stepTwoRef} disabled={disabled} detailData={detailData} btnOkStepTwo={btnOkStepTwo} />
+                                        </div>
+                                    </Form>
+                                </div>
+                            </div>
+                        </Fragment>
+                    </div>
+                </div>
+
+            </Spin>
+        </div >
+    );
+}
+
+export default connect(state => ({ ...state }))(Form.create()(Add));

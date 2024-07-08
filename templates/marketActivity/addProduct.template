@@ -1,0 +1,267 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { connect } from 'dva';
+import PropTypes from 'prop-types'
+import {
+    Form, Tooltip, Table, Icon, Button, InputNumber, Input, Select
+} from 'antd';
+import { cloneDeep } from 'lodash';
+import UploadImgNew from "../../UploadImgNew";
+import { getScrollWidth } from "@/utils/common";
+import mathmanage from '../../../utils/mathmanage';
+const FormItem = Form.Item;
+
+// import './less/addMemberCardManage.less';
+const formItemLayout = {
+    labelCol: {
+        sm: { span: 4 },
+    },
+    wrapperCol: {
+        sm: { span: 8 },
+    },
+}
+
+const formItemLayout2 = {
+    labelCol: {
+        sm: { span: 4 },
+    },
+    wrapperCol: {
+        sm: { span: 20 },
+    },
+}
+// import './less/couponsList.less';
+function AddProduct(props) {
+
+    const { getFieldDecorator } = props.form;
+    const { detailData, disabled, activityStatus } = props;
+    const columns = [
+        {
+            title: "排序",
+            key: "sort",
+            dataIndex: "sort",
+            width: 100,
+            render: (text, record, index) => (
+                <InputNumber
+                    style={{ width: '70px' }}
+                    value={text}
+                    min={1}
+                    disabled={disabled && detailData.activityStatus === 3}
+                    onChange={(e) => {
+                        changeProductListInput(e, "sort", index);
+                    }}
+                />
+            ),
+        },
+        {
+            title: "商品名称",
+            key: "supplierProductName",
+            dataIndex: "supplierProductName",
+            width: 170,
+            render: (text, record, index) => (
+                <Input
+                    value={text}
+                    disabled={disabled && detailData.activityStatus === 3}
+                    onInput={(e) => {
+                        changeProductListInput(e.target.value, "supplierProductName", index);
+                    }}
+                />
+            ),
+        },
+        {
+            title: "供应商商品编号",
+            key: "supplierProductCode",
+            dataIndex: "supplierProductCode",
+            width: 170,
+            render: (text, record, index) => (
+                <Input
+                    value={text}
+                    disabled={disabled && detailData.activityStatus !== 1}
+                    onInput={(e) => {
+                        changeProductListInput(e.target.value, "supplierProductCode", index);
+                    }}
+                />
+            ),
+        },
+        {
+            title: "供应商",
+            key: "supplierId",
+            dataIndex: "supplierId",
+            width: 180,
+            render: (text, record, index) => (
+                <Select onChange={(value) => {
+                    changeProductListInput(value, "supplierId", index);
+                }} value={text} disabled={disabled && detailData.activityStatus !== 1}>
+                    {
+                        supplierList && supplierList.length && supplierList.map(item => (
+                            <Option value={item.logisticsChannel}>{item.logisticsChannelName}</Option>
+                        ))
+                    }
+                </Select>
+            ),
+        },
+        {
+            title: "商品库存",
+            key: "productStock",
+            dataIndex: "productStock",
+            width: 120,
+            render: (text, record, index) => {
+                return (
+                    <div style={{ marginTop: (disabled) ? "31px" : "" }}>
+                        <Input
+                            placeholder="0~999999"
+                            maxLength={6}
+                            pattern="[0-9]*"
+                            value={text}
+                            disabled={disabled}
+                            onInput={(e) => {
+                                // 阻止非数字的输入
+                                if (!e.target.validity.valid) {
+                                    e.target.value = e.target.value.slice(0, -1);
+                                } else {
+                                    changeProductListInput(e.target.value, "productStock", index);
+                                }
+                            }}
+                        />
+                    </div>
+                );
+            },
+        },
+        {
+            title: <span>
+                兑换数量&nbsp;
+                <Tooltip title="使用兑换券兑换该商品时，默认下单的数量">
+                    <Icon type="question-circle-o" />
+                </Tooltip>
+            </span>,
+            key: "exchangeNum",
+            dataIndex: "exchangeNum",
+            width: 170,
+            render: (text, record, index) => (
+                <InputNumber
+                    disabled={true}
+                    defaultValue={record.exchangeNum}
+                />
+            ),
+        },
+        {
+            title: "商品图片",
+            key: "productImage",
+            dataIndex: "productImage",
+            width: 140,
+            render: (text, record, index) => {
+                return (
+                    <UploadImgNew
+                        field="productImage"
+                        updateImg={(filed, value, fieldEdit) => {
+                            updateImg(filed, value, fieldEdit, index);
+                        }}
+                        rowInfo={record || {}}
+                        noRequire
+                        imgSize={1000}
+                        disabled={disabled && detailData.activityStatus === 3}
+                    />
+                );
+            },
+        },
+        {
+            title: "操作",
+            width: 100,
+            fixed: "right",
+            render: (text, record, index) => {
+                return (
+                    <div>
+                        {disabled ? (
+                            <span>删除</span>
+                        ) : (
+                            <a
+                                onClick={() => {
+                                    stopProduct(index);
+                                }}
+                            >
+                                删除
+                            </a>
+                        )}
+                    </div>
+                );
+            },
+        },
+    ];
+    const id = mathmanage.getParam('id');
+
+    useEffect(() => {
+        getLogisticsConfig()
+    }, [])
+    let nowList = cloneDeep(props.value || [])
+    const [supplierList, setSupplierList] = useState([])
+    const addProduct = () => {
+        // const { detailData } = props;
+        // if (!detailData.codeKey) {
+        //     return message.info("请选择所属店铺");
+        // }
+        if (nowList.length && nowList.length === 12) return message.info("最多可添加12个商品");
+        nowList.push({ sort: nowList.length + 1, exchangeNum: 1, supplierId: '', supplierName: '' });
+        props.onChange(nowList)
+    }
+    const updateImg = (filed, value, fieldEdit, index) => {
+        let nowImgUrl = "";
+        // 如果是编辑
+        if (id) {
+            nowImgUrl = value ? value.response.data : "";
+        } else {
+            nowImgUrl = value ? (value.flag ? value.fileList[0].url : value.response.data) : "";
+        }
+        nowList[index][filed] = nowImgUrl;
+        props.onChange(nowList)
+    };
+    const getLogisticsConfig = async () => {
+        const res = await props.dispatch({
+            type: "LogisticsManage/getMerchantLogisticsLogisticsList",
+            payload: {},
+        });
+        const { code, data } = res;
+        if (code === "10000") {
+            setSupplierList(data.list)
+        }
+    }
+    const changeProductListInput = (value, field, index) => {
+        nowList[index][field] = value;
+        if (field === 'supplierId') {
+            // 这种写法为什么obj为空，找原因
+            //   const obj = supplierList.find(v=>{ v.logisticsChannel == value })
+            //   if(obj){
+            //     productConfigList[index]['supplierName'] = obj.logisticsChannelName
+            //   }
+            supplierList.map(v => {
+                if (v.logisticsChannel == value) {
+                    nowList[index]['supplierName'] = v.logisticsChannelName
+                }
+            })
+        }
+        props.onChange(nowList);
+        if (field === 'productStock') {
+            props.setTotalStock();
+        }
+    };
+
+    return (
+        <div>
+            <Button
+                type="primary"
+                disabled={disabled}
+                onClick={addProduct}
+            >
+                添加商品
+            </Button>
+            &nbsp;&nbsp; (最多可添加12个商品)
+            <Table
+                pagination={false}
+                rowKey="productId"
+                columns={columns}
+                scroll={{ x: getScrollWidth(columns) }}
+                dataSource={nowList || []}
+                bordered
+            />
+        </div >
+    );
+}
+
+export default connect(state => ({ ...state }))(Form.create()(AddProduct));
