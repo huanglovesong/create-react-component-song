@@ -71,8 +71,8 @@ class AddFlashSaleProductQuotaModal extends Component {
                                         form={this.props.form}
                                         startFieldName="startTime"
                                         endFieldName="endTime"
-                                        opts={{ showTimeObj: { startTime: { defaultValue: moment("00:00:00", "HH:mm:ss") }, endTime: { defaultValue: moment("23:59:59", "HH:mm:ss") } } }}
                                         detailData={detailData}
+                                        opts={[{ defaultValue: moment("00:00:00", "HH:mm:ss") }, { defaultValue: moment("23:59:59", "HH:mm:ss") }]}
                                     />
                                 </FormItem>
                                 <FormItem {...formItemLayout} label='活动类型'>

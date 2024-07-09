@@ -2,7 +2,7 @@
  * @Author: hjuangsong huangsong
  * @Date: 2024-06-26 14:17:44
  * @LastEditors: hjuangsong huangsong
- * @LastEditTime: 2024-07-08 19:27:11
+ * @LastEditTime: 2024-07-09 09:38:13
  * @FilePath: \create-react-component-song\extension.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -35,7 +35,7 @@ function activate(context) {
         if (type === 'initReactComponent') {
           componentDir = generators.createComponentDir(uri, componentName, true);
         }
-        else if (type === 'createReactClassComponent') {
+        else if (type === 'class') {
           componentDir = generators.createComponentDir(uri, componentName);
         } else if (type === 'createReactActivityClassComponent') {
           componentDir = generators.createComponentDir(uri, componentName);
@@ -48,7 +48,7 @@ function activate(context) {
             generators.createCSS(componentDir, componentName, type),
           ]);
         }
-        else if (type === 'createReactClassComponent') {
+        else if (type === 'class') {
           return Promise.all([
             generators.createComponent(componentDir, componentName, type),
             generators.createModalComponent(componentDir, componentName, type),
